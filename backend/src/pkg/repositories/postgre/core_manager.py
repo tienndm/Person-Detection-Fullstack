@@ -21,8 +21,8 @@ from shared.config.detection import DetectionConf
 
 
 class CoreManager(BasePostgreManager):
-    def __init__(self, host: str, port: int, user: str, password: str, database: str):
-        super().__init__(host, port, user, password, database)
+    def __init__(self, host: str, port: int, user: str, password: str, dbname: str):
+        super().__init__(host, port, user, password, dbname)
         self.connect()
 
     def insert(self, uuid: str, personCount: int):
@@ -37,12 +37,12 @@ class CoreManager(BasePostgreManager):
 
     def createTable(self):
         query = """
-            CREATE TABLE IF NOT EXISTS core (
-                id SERIAL PRIMARY KEY,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                person_count INT NOT NULL,
-                input_save_dir VARCHAR(255) NOT NULL',
-                output_save_dir VARCHAR(255) NOT NULL'
-            )
+        CREATE TABLE IF NOT EXISTS core (
+            id SERIAL PRIMARY KEY,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            person_count INT NOT NULL,
+            input_save_dir VARCHAR(255) NOT NULL,
+            output_save_dir VARCHAR(255) NOT NULL
+        )
         """
         self.execQuery(query=query)

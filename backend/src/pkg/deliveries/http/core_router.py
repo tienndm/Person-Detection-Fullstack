@@ -31,7 +31,7 @@ async def core(img: UploadFile = File(...)):
     """
     try:
         img = await img.read()
-        personCount, img = core(img)
+        personCount, img = await core(img)
         return JSONResponse(
             content={
                 "code": 200,
@@ -41,5 +41,6 @@ async def core(img: UploadFile = File(...)):
         )
     except Exception as e:
         return JSONResponse(
+            status_code=500,
             content={"code": 500, "message": "Internal Server Error", "data": str(e)}
         )

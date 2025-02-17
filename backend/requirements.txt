@@ -38,11 +38,13 @@ packaging==24.2
 pandas==2.2.3
 pillow==11.1.0
 psutil==7.0.0
+psycopg2-binary==2.9.10
 py-cpuinfo==9.0.0
 pydantic==2.10.6
 pydantic_core==2.27.2
 pyparsing==3.2.1
 python-dateutil==2.9.0.post0
+python-multipart==0.0.20
 pytz==2025.1
 PyYAML==6.0.2
 requests==2.32.3

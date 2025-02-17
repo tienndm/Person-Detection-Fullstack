@@ -16,6 +16,9 @@ services:
       - app-network
   
   api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
     image: api-service:dev-1.0
     container_name: api
     ports:
@@ -28,6 +31,9 @@ services:
       - app-network
   
   fe:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     image: frontend-service:dev-1.0
     container_name: fe
     ports:

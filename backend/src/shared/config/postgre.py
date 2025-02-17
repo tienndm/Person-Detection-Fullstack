@@ -1,8 +1,8 @@
 import os
 
 class PostgreConf:
-    user = os.getenv('POSTGRE_USER')
-    pwd = os.getenv('POSTGRE_PASSWORD')
-    host = os.getenv('POSTGRE_HOST')
-    port = os.getenv('POSTGRE_PORT')
-    db = os.getenv('POSTGRE_DB')
+    host = os.getenv("POSTGRE_HOST", "db")
+    port = int(os.getenv("POSTGRE_PORT", 5432))
+    user = os.getenv("POSTGRE_USER", "postgres")
+    pwd = os.getenv("POSTGRE_PASSWORD", "postgres")
+    db = os.getenv("POSTGRE_DB", "postgres")
