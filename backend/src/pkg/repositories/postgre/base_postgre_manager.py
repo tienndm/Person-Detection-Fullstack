@@ -2,7 +2,7 @@ __doc__ = """
 # BasePostgreManager Documentation
 
 ## Overview
-Handles PostgreSQL connections and query execution using SQLAlchemy. Provides context management (__enter__/__exit__) for safe use of database resources.
+Handles PostgreSQL connections and query execution. Provides context management (__enter__/__exit__) for safe use of database resources.
 
 ## Key Methods
 - __init__: Initializes DB connection parameters.
@@ -11,16 +11,12 @@ Handles PostgreSQL connections and query execution using SQLAlchemy. Provides co
 - close: Closes the database connection.
 - getDate: Returns the current datetime (formatted in ISO) in UTC+7.
 - __enter__/__exit__: Support for usage in "with" statements.
-
-## Author
-- Author: Tien Nguyen
-- Date: 2025-17-02
 """
+
+import psycopg2
 
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List, Any
-from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Engine, Connection
 
 
 class BasePostgreManager:
@@ -33,18 +29,20 @@ class BasePostgreManager:
         self.user = user
         self.password = password
         self.dbname = dbname
-        self.engine: Optional[Engine] = None
-        self.connection: Optional[Connection] = None
+        self.connection = None
 
     def connect(self):
         """
         Establish a connection to the PostgreSQL database.
         """
         try:
-            self.engine = create_engine(
-                f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.dbname}"
+            self.connection = psycopg2.connect(
+                host=self.host,
+                port=self.port,
+                user=self.user,
+                password=self.password,
+                dbname=self.dbname,
             )
-            self.connection = self.engine.connect()
         except Exception as e:
             raise RuntimeError(f"Failed to connect to database {self.dbname}: {e}")
 
@@ -57,12 +55,13 @@ class BasePostgreManager:
             raise RuntimeError("Database connection is not established")
 
         try:
-            result = self.connection.execute(text(query), params)
-            if result.returns_rows:
-                return result.fetchall()
-            self.connection.commit()
-            return []
-        except Exception as e:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, params)
+                if cursor.description:
+                    return cursor.fetchall()
+                self.connection.commit()
+                return []
+        except psycopg2.Error as e:
             self.connection.rollback()
             raise RuntimeError(f"Failed to execute query: {e}")
 
@@ -73,9 +72,6 @@ class BasePostgreManager:
         if self.connection:
             self.connection.close()
             self.connection = None
-        if self.engine:
-            self.engine.dispose()
-            self.engine = None
 
     def getDate(self):
         """

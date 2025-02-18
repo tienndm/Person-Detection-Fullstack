@@ -1,6 +1,8 @@
 import uuid
 import base64
 import os
+import shutil
+from fastapi.responses import JSONResponse
 from pkg.repositories.core.human_detection.detection import Detection
 from pkg.repositories.postgre.core_manager import CoreManager
 
@@ -27,12 +29,26 @@ class CoreUseCases:
         self.coreManager.createTable()
         self.compressImage = CompressImage()
 
-    async def detect(self, image):
-        uuid = uuid.uuid4()
-        return self.detection.detect(image)
+    async def detect(self, uuid):
+        return self.detection.detect(uuid)
+    
+    def insert(self, uuid, personCount):
+        self.coreManager.insert(uuid, personCount)
+
+    def saveInputImage(self, uuid, image):
+        with open(f"{DetectionConf.savedImageDir}/input/{uuid}.jpg", "wb") as f:
+            shutil.copyfileobj(image.file, f)
 
     async def __call__(self, image):
-        personCount, image = await self.detect(image)
-        self.coreManager.insert(uuid, personCount)
+        saveID = uuid.uuid4()
+        self.saveInputImage(saveID, image)
+        personCount, image = await self.detect(saveID)
+        self.coreManager.insert(saveID, personCount)
         image = self.compressImage.compress(image)
-        return personCount, image
+        return JSONResponse(
+            content={
+                "code": 200,
+                "message": "Success",
+                "data": {"personCount": personCount, "image": image.decode("utf-8")},
+            }
+        )

@@ -17,23 +17,19 @@ Handles PostgreSQL connections and query execution using SQLAlchemy.
 import os
 from .base_postgre_manager import BasePostgreManager
 
-from shared.config.detection import DetectionConf
-
-
 class CoreManager(BasePostgreManager):
     def __init__(self, host: str, port: int, user: str, password: str, dbname: str):
         super().__init__(host, port, user, password, dbname)
         self.connect()
 
     def insert(self, uuid: str, personCount: int):
-        input_save_dir = os.path.join(DetectionConf.savedImageDir, f"input/{uuid}.jpg")
-        output_save_dir = os.path.join(
-            DetectionConf.savedImageDir, f"output/{uuid}.jpg"
-        )
-        self.cursor.execute(
-            f"INSERT INTO core (person_count, input_save_dir, output_save_dir) VALUES ({personCount}, {input_save_dir}, {output_save_dir})"
-        )
-        self.connection.commit()
+        input_save_dir = os.path.join("input", f"{uuid}.jpg")
+        output_save_dir = os.path.join("output", f"{uuid}.jpg")
+        query = """
+        INSERT INTO core (person_count, input_save_dir, output_save_dir)
+        VALUES (%s, %s, %s)
+        """
+        self.execQuery(query=query, params=[personCount, input_save_dir, output_save_dir])
 
     def createTable(self):
         query = """

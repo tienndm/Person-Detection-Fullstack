@@ -1,6 +1,9 @@
+import os
 import cv2
 import numpy as np
 from ultralytics import YOLO
+
+from shared.config.detection import DetectionConf
 
 class Detection:
     _instance = None
@@ -8,16 +11,22 @@ class Detection:
         if Detection._instance is None:
             Detection._instance = YOLO(modelPath)
         self.model = Detection._instance
+        if os.path.exists(f"{DetectionConf.savedImageDir}/input") is False:
+            os.makedirs(f"{DetectionConf.savedImageDir}/input")
+        if os.path.exists(f"{DetectionConf.savedImageDir}/output") is False:
+            os.makedirs(f"{DetectionConf.savedImageDir}/output")
 
-    def detect(self, image: np.ndarray, uuid: str):
-        if image is None:
-            raise ValueError(f"Image not found: {image}")
+    def loadImage(self, uuid):
+        return cv2.imread(f"{DetectionConf.savedImageDir}/input/{uuid}.jpg")
 
+
+    def detect(self, uuid: str):
+        image = self.loadImage(uuid)
         results = self.model(image)
         personCount = 0
 
         for result in results:
-            for box in  result.boxes:
+            for box in result.boxes:
                 classID = int(box.cls[0])
                 if classID == 0:
                     personCount += 1
@@ -32,5 +41,8 @@ class Detection:
                     label = f"Person: {confidence:.2f}"
                     cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
         
-        cv2.imwrite(f"{uuid}.jpg", image)
-        return personCount, image
+        cv2.imwrite(f"{DetectionConf.savedImageDir}/output/{uuid}.jpg", image)
+        ret, buffer = cv2.imencode('.jpg', image)
+        if not ret:
+            raise Exception("Failed to encode image to JPEG")
+        return personCount, buffer.tobytes()
