@@ -16,6 +16,8 @@ Handles PostgreSQL connections and query execution using SQLAlchemy.
 
 import os
 from .base_postgre_manager import BasePostgreManager
+from sqlalchemy.engine import Row
+from datetime import datetime
 
 class CoreManager(BasePostgreManager):
     def __init__(self, host: str, port: int, user: str, password: str, dbname: str):
@@ -27,9 +29,26 @@ class CoreManager(BasePostgreManager):
         output_save_dir = os.path.join("output", f"{uuid}.jpg")
         query = """
         INSERT INTO core (person_count, input_save_dir, output_save_dir)
-        VALUES (%s, %s, %s)
+        VALUES (:person_count, :input_save_dir, :output_save_dir)
         """
-        self.execQuery(query=query, params=[personCount, input_save_dir, output_save_dir])
+        params = {
+            "person_count": personCount,
+            "input_save_dir": input_save_dir,
+            "output_save_dir": output_save_dir
+        }
+        self.execQuery(query=query, params=params)
+
+    def fetch(self):
+        query = """
+        SELECT * FROM core
+        """
+        result = self.execQuery(query=query)
+        data = [dict(row._mapping) for row in result]
+        for row in data:
+            for key, value in row.items():
+                if isinstance(value, datetime):
+                    row[key] = value.isoformat()
+        return data
 
     def createTable(self):
         query = """

@@ -2,7 +2,7 @@ __doc__ = """
 # BasePostgreManager Documentation
 
 ## Overview
-Handles PostgreSQL connections and query execution. Provides context management (__enter__/__exit__) for safe use of database resources.
+Handles PostgreSQL connections and query execution using SQLAlchemy. Provides context management (__enter__/__exit__) for safe use of database resources.
 
 ## Key Methods
 - __init__: Initializes DB connection parameters.
@@ -13,8 +13,8 @@ Handles PostgreSQL connections and query execution. Provides context management 
 - __enter__/__exit__: Support for usage in "with" statements.
 """
 
-import psycopg2
-
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List, Any
 
@@ -29,49 +29,41 @@ class BasePostgreManager:
         self.user = user
         self.password = password
         self.dbname = dbname
-        self.connection = None
+        self.engine = create_engine(f"postgresql://{user}:{password}@{host}:{port}/{dbname}")
+        self.Session = sessionmaker(bind=self.engine)
+        self.session = None
 
     def connect(self):
         """
         Establish a connection to the PostgreSQL database.
         """
-        try:
-            self.connection = psycopg2.connect(
-                host=self.host,
-                port=self.port,
-                user=self.user,
-                password=self.password,
-                dbname=self.dbname,
-            )
-        except Exception as e:
-            raise RuntimeError(f"Failed to connect to database {self.dbname}: {e}")
+        self.session = self.Session()
 
-    def execQuery(self, query: str, params: Optional[List[Any]] = None):
+    def execQuery(self, query: str, params: Optional[dict] = None):
         """
         Execute an SQL query with optional parameters.
         Commits the transaction if not a SELECT statement.
         """
-        if not self.connection:
-            raise RuntimeError("Database connection is not established")
+        if not self.session:
+            raise RuntimeError("Database session is not established")
 
         try:
-            with self.connection.cursor() as cursor:
-                cursor.execute(query, params)
-                if cursor.description:
-                    return cursor.fetchall()
-                self.connection.commit()
-                return []
-        except psycopg2.Error as e:
-            self.connection.rollback()
+            result = self.session.execute(text(query), params)
+            if result.returns_rows:
+                return result.fetchall()
+            self.session.commit()
+            return []
+        except Exception as e:
+            self.session.rollback()
             raise RuntimeError(f"Failed to execute query: {e}")
 
     def close(self):
         """
-        Close the database connection.
+        Close the database session.
         """
-        if self.connection:
-            self.connection.close()
-            self.connection = None
+        if self.session:
+            self.session.close()
+            self.session = None
 
     def getDate(self):
         """
@@ -92,6 +84,6 @@ class BasePostgreManager:
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
-        Context manager exit; closes the database connection.
+        Context manager exit; closes the database session.
         """
         self.close()
