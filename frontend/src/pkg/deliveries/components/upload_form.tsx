@@ -44,7 +44,7 @@ const UploadForm: React.FC = () => {
       {result && (
         <div>
           <p>{result.message}</p>
-          <p>Số người được trong hình: {result.personCount}</p>
+          <p>Person count: {result.personCount}</p>
           <img
             src={result.image}
             alt="Detection Result"
