@@ -2,22 +2,22 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:12
+    image: postgres:14
     container_name: postgres
     ports:
       - "5432:5432"
     volumes:
       - ../data/postgres-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: persondb
     networks:
       - app-network
   
   api:
     build:
-      context: ../backend
+      context: ../api
       dockerfile: Dockerfile
     image: api-service:dev-1.0
     container_name: api

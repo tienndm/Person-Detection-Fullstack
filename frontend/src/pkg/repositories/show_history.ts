@@ -8,5 +8,5 @@ export async function fetchDetectionHistory(): Promise<DetectionRecord[]> {
   }
 
   const data = await response.json();
-  return data.data;
+  return data;
 }

@@ -24,6 +24,8 @@ export default function HistoryPage() {
     fetchData();
   }, []);
 
+  console.log(records)
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -35,7 +37,6 @@ export default function HistoryPage() {
             <th>ID</th>
             <th>Time</th>
             <th>Person Count</th>
-            <th>Input Image</th>
             <th>Detected Image</th>
           </tr>
         </thead>
@@ -43,14 +44,31 @@ export default function HistoryPage() {
           {records.map((record) => (
             <tr key={record.id}>
               <td>{record.id}</td>
-              <td>{new Date(record.timestamp).toLocaleString()}</td>
-              <td>{record.person_count}</td>
-              <td>{record.input_save_dir}</td>
-              <td>{record.output_save_dir}</td>
+              <td>{formatDateTime(record.createdAt)}</td>
+              <td>{record.personCount}</td>
+              <td>{record.outputSaveDir}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
   );
+}
+
+function formatDateTime(timestamp: string | number | Date): string {
+  try {
+    if (typeof timestamp === 'string' && timestamp.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+$/)) {
+      const parts = timestamp.split('.');
+      const datePart = parts[0]; // 2025-03-05T02:01:44
+      const microseconds = parts[1] || '000';
+      const milliseconds = microseconds.substring(0, 3); // Take only first 3 digits
+      
+      return new Date(`${datePart}.${milliseconds}Z`).toLocaleString();
+    }
+    
+    return new Date(timestamp).toLocaleString();
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return 'Invalid date';
+  }
 }

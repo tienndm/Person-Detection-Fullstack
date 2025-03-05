@@ -1,0 +1,1 @@
+from .person_detect import AbstractPersonRepository
