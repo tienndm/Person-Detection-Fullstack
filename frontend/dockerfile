@@ -1,0 +1,35 @@
+# ---- Phase 1: Build stage ----
+FROM node:18-alpine AS builder
+
+WORKDIR /fe
+
+# Copy dependency files first for better caching
+COPY package.json package-lock.json* ./
+
+# Install dependencies
+RUN npm install
+
+# Copy application code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# ---- Phase 2: Run stage ----
+FROM node:18-alpine AS runner
+
+WORKDIR /fe
+
+# Copy only necessary files from builder
+COPY --from=builder /fe/package.json ./
+COPY --from=builder /fe/node_modules ./node_modules
+COPY --from=builder /fe/.next ./.next
+COPY --from=builder /fe/public ./public
+
+# Set production environment
+ENV NODE_ENV=production
+ENV PORT=3000
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start"]

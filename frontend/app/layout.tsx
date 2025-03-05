@@ -1,38 +1,41 @@
-"use client";
+import type { Metadata } from "next";
 
-import Link from "next/link";
+import "./globals.css";
+import { ReactNode } from "react";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+import localFont from "next/font/local";
+
+const ipmPlexSans = localFont({
+  src: [
+    { path: '/fonts/IBMPlexSans-Regular.ttf', weight: '400', style: 'normal' },
+    { path: '/fonts/IBMPlexSans-Medium.ttf', weight: '500', style: 'normal' },
+    { path: '/fonts/IBMPlexSans-SemiBold.ttf', weight: '600', style: 'normal' },
+    { path: '/fonts/IBMPlexSans-Bold.ttf', weight: '700', style: 'normal' },
+  ]
+});
+
+const bebasNeue = localFont({
+  src: [
+    { path: '/fonts/BebasNeue-Regular.ttf', weight: '400', style: 'normal' },
+  ],
+  variable: '--bebas-neue',
+})
+
+export const metadata: Metadata = {
+  title: "Bookwise",
+  description: "Bookwise is a book borrowing university management solution.",
+};
+
+const RootLayout = async ({ children }: { children: ReactNode }) => {
   return (
     <html lang="en">
-      <body>
-        <div className="container">
-          <header>
-            <h1>Person Detection App</h1>
-            <nav style={{ padding: "10px", background: "#f0f0f0", marginBottom: "20px" }}>
-              <Link href="/" style={{ marginRight: "20px" }}>Home</Link>
-              <Link href="/history">History</Link>
-            </nav>
-          </header>
-          <main>{children}</main>
-          <footer>
-            <p>&copy; 2025 Tien Nguyen</p>
-          </footer>
-        </div>
-        <style jsx>{`
-          .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-          }
-          header, footer {
-            background: #0070f3;
-            color: white;
-            padding: 10px;
-          }
-        `}</style>
-      </body>
+        <body
+          className={`${ipmPlexSans.className} ${bebasNeue.variable} antialiased`}
+        >
+          {children}
+        </body>
     </html>
   );
 }
+
+export default RootLayout;
