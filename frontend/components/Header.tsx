@@ -23,7 +23,7 @@ const Header = () => {
         <ul className='flex flex-row items-center gap-8'>
             <li>
                 {usePathname() === '/' ? (
-                    <Link href='/history'>
+                    <Link href='/history/1'>
                         <Button>History</Button>
                     </Link>
                 ) : (

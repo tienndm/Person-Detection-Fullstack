@@ -22,8 +22,8 @@ const bebasNeue = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "Bookwise",
-  description: "Bookwise is a book borrowing university management solution.",
+  title: "Person Detection",
+  description: "AI Powered Person Detection.",
 };
 
 const RootLayout = async ({ children }: { children: ReactNode }) => {

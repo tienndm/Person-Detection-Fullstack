@@ -13,13 +13,14 @@ import { HistoryTableProps, Records } from '@/types'
 
 const HistoryTable = ({records}: HistoryTableProps) => {
   return (
-    <div>
-        <Table>
+    <div className="w-full overflow-x-auto">
+        <Table className="min-w-full">
             <TableHeader>
                 <TableRow>
-                    <TableHead className='px-2 text-light-200'>Timestamp</TableHead>
-                    <TableHead className='px-2 text-light-200'>Person Detected</TableHead>
-                    <TableHead className='px-2 text-light-200'>Detection Directory</TableHead>
+                    <TableHead className="px-2 text-light-200 whitespace-nowrap text-center">ID</TableHead>
+                    <TableHead className="px-2 text-light-200 whitespace-nowrap text-center">Timestamp</TableHead>
+                    <TableHead className="px-2 text-light-200 whitespace-nowrap text-center">Person Detected</TableHead>
+                    <TableHead className="px-2 text-light-200 whitespace-nowrap text-center">Detection Directory</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -27,21 +28,28 @@ const HistoryTable = ({records}: HistoryTableProps) => {
                     return(
                         <TableRow 
                             key={t.id}
-                            className='text-light-100'
+                            className="text-light-100"
                         >
-                            <TableCell className="min-w-32 pl-2 pr-10">
+                            <TableCell>
+                                <div className="flex items-center justify-center gap-3">
+                                    <p className="text-14 font-semibold text-center">
+                                        {t.id}
+                                    </p>
+                                </div>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap pl-2 pr-10">
                                 {formatDateTime(new Date(t.createdAt)).dateTime}
                             </TableCell>
-                            <TableCell className='max-w-[250px] pl-2 pr-10'>
-                                <div className='flex items-center justify-center gap-3 w-full'>
-                                    <p className='text-14 truncate font-semibold'>
+                            <TableCell className="pl-2 pr-10 text-center">
+                                <div className="flex items-center justify-center gap-3">
+                                    <p className="text-14 font-semibold text-center">
                                         {t.personCount}
                                     </p>
                                 </div>
                             </TableCell>
-                            <TableCell className='max-w-[250px] pl-2 pr-10'>
-                                <div className='flex items-center justify-center gap-3 w-full'>
-                                    <p className='text-14 truncate'>
+                            <TableCell className="pl-2 pr-10 break-words">
+                                <div className="flex items-center gap-3">
+                                    <p className="text-14 break-all">
                                         {t.outputSaveDir}
                                     </p>
                                 </div>

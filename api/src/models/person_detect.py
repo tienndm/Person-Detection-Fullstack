@@ -14,6 +14,11 @@ class RecordModel:
 
 
 @dataclass
-class GetRecordModel:
+class TotalPageModel:
+    totalPage: int
+
+
+@dataclass
+class GetRecordParamsModel:
     page: int = 1
-    size: int = 100
+    size: int = 10

@@ -17,18 +17,29 @@ async def core(img: UploadFile = File(...)):
     unitOfWork = injector.get(AbstractDetectionUnitOfWork)
     record, image = await detectUsecase.detectPerson(asyncUnitOfWork, unitOfWork, img)
 
-    return JSONResponse(content={
-        "code": 200,
-        "message": "success",
-        "data": {"personCount": record.personCount, "image": image.decode('utf-8')}
-    })
+    return JSONResponse(
+        content={
+            "code": 200,
+            "message": "success",
+            "data": {"personCount": record.personCount, "image": image.decode("utf-8")},
+        }
+    )
 
 
-@router.get("/api/v1/fetch")
-async def record() -> list[RecordResponse]:
+@router.get("/api/v1/fetch/{page}")
+async def record(page: int) -> list[RecordResponse]:
     asyncUnitOfWork = injector.get(AbstractUnitOfWork)
-    records = await detectUsecase.getRecord(asyncUnitOfWork)
+    records = await detectUsecase.getRecord(asyncUnitOfWork, page)
 
     result = list(map(RecordResponseMapper.entityToResponse, records))
-    print(result)
     return result
+
+
+@router.get("/api/v1/totalPage")
+async def totalPage():
+    asyncUnitOfWork = injector.get(AbstractUnitOfWork)
+    totalPage = await detectUsecase.getTotalPage(asyncUnitOfWork)
+
+    return JSONResponse(
+        content={"code": 200, "message": "success", "data": {"totalPage": totalPage}}
+    )
